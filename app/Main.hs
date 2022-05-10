@@ -2,6 +2,7 @@
 
 module Main where
 
+import Control.Monad (void)
 import qualified Data.Map.Strict as Map
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
@@ -31,7 +32,7 @@ main = execParser opts >>= printRandomPassPhrases
         )
 
 printRandomPassPhrases :: PhraseConfig -> IO ()
-printRandomPassPhrases = outputRandomPassphrases . toPhraseEnv
+printRandomPassPhrases phrcfg = void (outputRandomPassphrasesUntil (toPhraseEnv phrcfg))
 
 dump :: PhraseConfig -> IO ()
 dump = dumpEnv . toPhraseEnv

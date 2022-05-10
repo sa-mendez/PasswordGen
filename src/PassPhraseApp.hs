@@ -1,9 +1,17 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module PassPhraseApp where
+module PassPhraseApp
+  ( outputRandomPassphrasesUntil,
+    outputRandomPassphrases,
+    outputSingleRandomPassphrase,
+    randomWord,
+  )
+where
 
+import Control.Applicative (empty)
 import Control.Monad.Reader
 import Control.Monad.State
+import Control.Monad.Trans.Maybe
 import Control.Monad.Writer
 import Data.Map.Strict ((!?))
 import Data.Maybe
@@ -15,27 +23,41 @@ import System.Random
 
 type PassPhraseApp g r = WriterT T.Text (ReaderT PhraseEnv (StateT g IO)) r
 
+outputRandomPassphrasesUntil :: PhraseEnv -> IO (Maybe ())
+outputRandomPassphrasesUntil phrenv = do
+  rg <- newStdGen
+  let untilLoop = runMaybeT $
+        forever $ do
+          liftIO (putStrLn $ "\n\nGenerating " <> show (numToGen phrenv) <> " passphrases\n")
+          passPhrases <- lift $ mapM (const randomPassPhraseAndClear) [1 .. (numToGen phrenv)]
+          liftIO (TIO.putStrLn $ T.unlines passPhrases)
+          liftIO (putStr "Generate more passphrases (y/n): ")
+          resp <- liftIO getLine
+          when (resp == "n") mzero
+  runPassPhraseApp phrenv rg untilLoop
+
 outputRandomPassphrases :: PhraseEnv -> IO ()
 outputRandomPassphrases phrenv = do
+  rg <- newStdGen
   putStrLn $ "Generating " <> show (numToGen phrenv) <> " passphrases"
-  passPhrases <- runPassPhraseApp phrenv $ mapM (const randomPassPhraseAndClear) [1 .. (numToGen phrenv)]
+  passPhrases <- runPassPhraseApp phrenv rg $ mapM (const randomPassPhraseAndClear) [1 .. (numToGen phrenv)]
   TIO.putStrLn $ T.unlines passPhrases
-  where
-    -- Diagnosing why using censor here was yielding blank results was a tricky issue to diagnose
-    -- It basically had to do with the fact that I was using execWriterT instead of runWriterT
-    -- in the runPassPhraseApp.
-    randomPassPhraseAndClear :: PassPhraseApp StdGen T.Text
-    randomPassPhraseAndClear = censor (const mempty) randomPassPhrase
 
 outputSingleRandomPassphrase :: PhraseEnv -> IO ()
 outputSingleRandomPassphrase phrenv = do
-  passPhrase <- runPassPhraseApp phrenv randomPassPhrase
+  rg <- newStdGen
+  passPhrase <- runPassPhraseApp phrenv rg randomPassPhrase
   TIO.putStrLn $ "The randomly generated pass phrase is " <> passPhrase
 
-runPassPhraseApp :: PhraseEnv -> PassPhraseApp StdGen r -> IO r
-runPassPhraseApp phrenv app = do
-  rg <- newStdGen
+runPassPhraseApp :: PhraseEnv -> StdGen -> PassPhraseApp StdGen r -> IO r
+runPassPhraseApp phrenv rg app = do
   fst <$> evalStateT (runReaderT (runWriterT app) phrenv) rg
+
+-- Diagnosing why using censor here was yielding blank results was a tricky issue to diagnose
+-- It basically had to do with the fact that I was using execWriterT instead of runWriterT
+-- in the runPassPhraseApp.
+randomPassPhraseAndClear :: PassPhraseApp StdGen T.Text
+randomPassPhraseAndClear = censor (const mempty) randomPassPhrase
 
 randomPassPhrase :: RandomGen g => PassPhraseApp g T.Text
 randomPassPhrase = do
