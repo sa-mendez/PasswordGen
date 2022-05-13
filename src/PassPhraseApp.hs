@@ -80,5 +80,5 @@ randomWord penv dictKey rg = do
   dicts <- dicts penv
   return (dictRandoItem rg (dictOrUnknown dictKey dicts))
   where
-    dictRandoItem rg dictEntries = swap $ T.pack . (dictEntries !!) <$> swap (randomR (0, length dictEntries - 1) rg)
+    dictRandoItem rg dictEntries = swap $ (dictEntries !!) <$> swap (randomR (0, length dictEntries - 1) rg)
     dictOrUnknown dictKey dicts = fromMaybe ["?"] (dicts !? dictKey)
