@@ -10,16 +10,39 @@ where
 
 import Control.Applicative (empty)
 import Control.Monad.Reader
+  ( MonadIO (liftIO),
+    MonadPlus (mzero),
+    MonadReader (ask),
+    MonadTrans (lift),
+    ReaderT (runReaderT),
+    asks,
+    forever,
+    when,
+  )
 import Control.Monad.State
-import Control.Monad.Trans.Maybe
+  ( MonadState (get, put),
+    StateT,
+    evalStateT,
+  )
+import Control.Monad.Trans.Maybe (MaybeT (runMaybeT))
 import Control.Monad.Writer
+  ( MonadWriter (tell),
+    WriterT (runWriterT),
+    censor,
+    mapWriterT,
+  )
 import Data.Map.Strict ((!?))
-import Data.Maybe
+import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 import Data.Tuple (swap)
-import PhraseTypes
+import PhraseTypes (PhraseEnv (dicts, numToGen, pattern))
 import System.Random
+  ( Random (randomR),
+    RandomGen,
+    StdGen,
+    newStdGen,
+  )
 
 type PassPhraseApp g r = WriterT T.Text (ReaderT PhraseEnv (StateT g IO)) r
 

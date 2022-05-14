@@ -2,10 +2,11 @@
 
 module PhraseTypes where
 
-import Data.Char
-import Data.List.Extra
+import Control.DeepSeq (force)
+import Data.Char (intToDigit, isAscii, isPunctuation, isSymbol)
+import Data.List.Extra ()
 import qualified Data.Map.Strict as Map
-import Data.Maybe
+import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
 import Data.Text.IO (hGetContents)
 import GHC.IO.IOMode (IOMode (ReadMode))
