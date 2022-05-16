@@ -25,11 +25,17 @@ import Control.Monad.State
     evalStateT,
   )
 import Control.Monad.Trans.Maybe (MaybeT (runMaybeT))
-import Control.Monad.Writer
-  ( MonadWriter (tell),
-    WriterT (runWriterT),
+import Control.Monad.Writer.CPS
+  ( MonadIO (liftIO),
+    MonadPlus (mzero),
+    MonadTrans (lift),
+    MonadWriter (tell),
+    WriterT,
     censor,
+    forever,
     mapWriterT,
+    runWriterT,
+    when,
   )
 import Data.Map.Strict ((!?))
 import Data.Maybe (fromMaybe)
@@ -44,6 +50,15 @@ import System.Random
     newStdGen,
   )
 
+{-
+ Notice the WriterT instance here.  It is actually from Control.Monad.Writer.CPS, not the Strict or Lazy Writer
+ This is because (and it took me a while to get to the bottom of this), the Strict and Lazy Writers are known to
+ have space leaks.  I am of course using the Writer to build up the pass phrases, and as you scale up the number
+ of generated pass phrases (via the -n parameter) the memory usage skyrockets.
+
+ Note that I also had to add the writer-cps-mtl package as a dependency, as it contains the MonadState, MonadReader
+ orphan instances for the CPS Writer
+-}
 type PassPhraseApp g r = WriterT T.Text (ReaderT PhraseEnv (StateT g IO)) r
 
 outputRandomPassphrasesUntil :: PhraseEnv -> IO (Maybe ())

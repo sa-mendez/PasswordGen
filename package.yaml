@@ -28,6 +28,7 @@ dependencies:
 - extra
 - text
 - transformers
+- writer-cps-mtl
 
 library:
   source-dirs: src

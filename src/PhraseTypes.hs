@@ -2,7 +2,6 @@
 
 module PhraseTypes where
 
-import Control.DeepSeq (force)
 import Data.Char (intToDigit, isAscii, isPunctuation, isSymbol)
 import Data.List.Extra ()
 import qualified Data.Map.Strict as Map
