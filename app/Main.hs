@@ -16,7 +16,7 @@ passwordGenSetup =
   PhraseConfig
     <$> strOption (long "pattern" <> short 'p' <> metavar "PATTERN" <> help "Passphrase generation pattern")
     <*> optional (option auto (long "max-length" <> short 'm' <> metavar "MAX-WORD-LENGTH" <> help "Maximum word word length"))
-    <*> optional (option auto (long "num-passphrases" <> short 'n' <> metavar "NUM_PASSWORDS" <> help "Number of passphrases to generate"))
+    <*> optional (option auto (long "num-passphrases" <> short 'n' <> metavar "NUM_PASSPHRASES" <> help "Number of passphrases to generate"))
     <*> strOption (long "english-dict" <> short 'e' <> metavar "ENGLISH-DICT-FILE" <> help "File containing English words")
     <*> strOption (long "spanish-dict" <> short 's' <> metavar "SPANISH-DICT-FILE" <> help "File containing Spanish words")
 
