@@ -43,6 +43,7 @@ import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 import Data.Tuple (swap)
 import PhraseTypes (PhraseEnv (dicts, numToGen, pattern))
+import System.IO (hFlush, stdout)
 import System.Random
   ( Random (randomR),
     RandomGen,
@@ -69,7 +70,7 @@ outputRandomPassphrasesUntil phrenv = do
           liftIO (putStrLn $ "\n\nGenerating " <> show (numToGen phrenv) <> " passphrases\n")
           passPhrases <- lift $ mapM (const randomPassPhraseAndClear) [1 .. (numToGen phrenv)]
           liftIO (TIO.putStrLn $ T.unlines passPhrases)
-          liftIO (putStr "Generate more passphrases (y/n): ")
+          liftIO $ putStr "Generate more passphrases (y/n): " >> hFlush stdout
           resp <- liftIO getLine
           when (resp == "n") mzero
   runPassPhraseApp phrenv rg untilLoop
