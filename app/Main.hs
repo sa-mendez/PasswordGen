@@ -3,10 +3,8 @@
 module Main where
 
 import Control.Monad (void)
-import qualified Data.Map.Strict as Map
-import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
-import Options.Applicative as Opt
+import Options.Applicative
 import PassPhraseApp
 import PhraseTypes
 import System.Random (newStdGen)
